@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn.functional as F
 import csv
-
+import random
 # torch
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -35,6 +35,7 @@ import io
 
 import argparse
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from network.sub_module.stage1_3D_kpts import Compute_3D_kpts
 
@@ -334,6 +335,78 @@ def maiN_AUTSL(args):
             del frames, resized_frames, joints_3d, frame
             # break
 
+
+def extract_image_from_Video_WLASL():    
+    video_root_dir = '/scratch/pfayyazs/datasets/WLASL2000'
+    data_root_dir = '/scratch/rhong5/dataset/signLanguage/WLASL/WLASL300'
+    save_img_dir = 'WLASL_images'
+    os.makedirs(save_img_dir, exist_ok=True)
+    
+
+    splits = ['train', 'val']
+    for split in splits:
+        anno_json_file = os.path.join(data_root_dir, f'{split}.json')
+        ## load json file
+        with open(anno_json_file) as f:
+            video_info_dict = pd.read_json(f)
+        video_names = video_info_dict.keys()
+        # random.shuffle(video_names)
+        video_names = list(video_names)
+        random.shuffle(video_names)
+        for idx, video_id in enumerate(video_names):
+            print(f'Processing {split}: {idx}/{len(video_names)}, {video_id}')
+            # if not str(video_id) == '12338':
+            #     continue
+            v_info_dict = video_info_dict[video_id]
+            frame_end = v_info_dict['frame_end']
+            frame_start = v_info_dict['frame_start']
+            ## load video
+
+            ## right alligen video_id, 5 bits, 0 padded left
+            video_id = str(video_id).zfill(5)
+            video_path = os.path.join(video_root_dir, f'{video_id}.mp4')
+
+            # open video file with opencv
+            cap = cv2.VideoCapture(video_path)
+
+            # if faided to open video file, continue to the next video
+            if not cap.isOpened():
+                continue
+            # get total number of frames
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+
+            # Determine the range to read frames based on frame_end value
+            if frame_end == -1:
+                frame_end = total_frames  # Read till the end of the video
+
+            # Adjust frame_start and frame_end to zero-based index for OpenCV
+            frame_start -= 1
+            if frame_end != total_frames:
+                frame_end -= 1
+
+            num_frames = 3
+            if frame_end - frame_start > num_frames:
+                # frame_list = np.linspace(frame_start, frame_end, num_frames, endpoint=False, dtype=int)
+                ## random sample
+                frame_list = np.random.randint(frame_start, frame_end, num_frames)
+            else:
+                # frame_list = np.linspace(frame_start, frame_end, frame_end - frame_start, endpoint=False, dtype=int)
+                frame_list = np.random.randint(frame_start, frame_end, frame_end - frame_start)
+            for i in frame_list:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+                ret, frame = cap.read()
+                if not ret:
+                    continue
+                img_name = f'{split}_{video_id}_{str(i).zfill(3)}.jpg'
+                img_filepath = os.path.join(save_img_dir, img_name)
+                cv2.imwrite(img_filepath, frame)
+
+            cap.release()
+            if idx >= 50:
+                break
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train model on AUTSL dataset')
     parser.add_argument('--log_dir', type=str, default='logs', help='directory to save logs')
@@ -341,13 +414,14 @@ if __name__ == "__main__":
     parser.add_argument('--debug', action='store_true', help='debug mode')
 
     args = parser.parse_args()
-    if args.dataset_name == 'AUTSL':
-        maiN_AUTSL(args)
-    elif args.dataset_name == 'WLASL':
-        main_WLASL(args)
-    else:
-        print('Please provide the dataset name')
-        sys.exit(1)
+    # if args.dataset_name == 'AUTSL':
+    #     maiN_AUTSL(args)
+    # elif args.dataset_name == 'WLASL':
+    #     main_WLASL(args)
+    # else:
+    #     print('Please provide the dataset name')
+    #     sys.exit(1)
+    extract_image_from_Video_WLASL()
 
 
 '''

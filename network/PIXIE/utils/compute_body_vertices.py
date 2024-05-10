@@ -203,6 +203,7 @@ class ComputeBodyVerticesKpts(nn.Module):
         self.mesh_point_visualizer.destroy()
         print(f'-- please check the results in {self.save_img_dir}')
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PIXIE')
     parser.add_argument('--input_img_dir', type=str, default='../TestSamples/body', help='input image directory')
