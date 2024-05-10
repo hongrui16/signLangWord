@@ -121,6 +121,7 @@ class ComputeBodyVerticesKpts(nn.Module):
         if platform.system() == 'Windows':
             self.mesh_point_visualizer = VisMeshPoints()
         else:
+            print("Linux, need to be verified!")
             pass
         
 
@@ -170,7 +171,6 @@ class ComputeBodyVerticesKpts(nn.Module):
                 
                 # param_dict = pixie.encode(data, threthold=True, keep_local=True, copy_and_paste=True)
                 # only use body params to get smplx output. TODO: we can also show the results of cropped head/hands
-                moderator_weight = param_dict['moderator_weight']
                 codedict = param_dict['body']
 
                 opdict = self.pixie.decode(codedict, param_type='body')
@@ -198,10 +198,11 @@ class ComputeBodyVerticesKpts(nn.Module):
             except Exception as e:
                 continue
 
-
+            if debug:
+                break
 
         self.mesh_point_visualizer.destroy()
-        print(f'-- please check the results in {self.save_img_dir}')
+        print(f'please check the results in {self.save_img_dir}')
 
 
 if __name__ == '__main__':
