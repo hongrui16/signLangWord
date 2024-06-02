@@ -11,7 +11,6 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
 from torchvision import transforms
-from torchsummary import summary
 from PIL import Image
 # misc
 import time
@@ -20,7 +19,6 @@ from datetime import datetime
 import cv2
 
 # preprocessing 
-import av
 import pandas as pd
 import matplotlib.pyplot as plt
 

@@ -13,7 +13,7 @@ from network.PIXIE.pixie_zoo.datasets import detectors
 from network.sub_module.SMPLX_joint_ids2names import selected_indicecs
 
 from utils.vis_3d import plot_and_save_point_cloud, plotly_save_point_cloud
-from utils.image_process import crop_resize_image_batch
+from network.PIXIE.pixie_zoo.utils.image_process import crop_resize_image_batch
 
 class Compute_3D_kpts(nn.Module):
     """3D Keypoints Encoder for 3D keypoints part of model."""

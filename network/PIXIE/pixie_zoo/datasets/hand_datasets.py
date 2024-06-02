@@ -9,11 +9,23 @@ from skimage.io import imread, imsave
 from skimage.transform import estimate_transform, warp, resize, rescale
 from glob import glob
 import scipy.io
-from . import detectors
+import os
+import sys
+
+# import torch functions
+# import torch.nn.functional as F
+
+
+# sys.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+# import detectors
+# from utils.array_cropper import Cropper
+# from utils.util import gaussian_blur
+
 
 def video2sequence(video_path):
     videofolder = video_path.split('.')[0]
-    util.check_mkdir(videofolder)
+    os.makedirs(videofolder, exist_ok=True)
     video_name = video_path.split('/')[-1].split('.')[0]
     vidcap = cv2.VideoCapture(video_path)
     success,image = vidcap.read()

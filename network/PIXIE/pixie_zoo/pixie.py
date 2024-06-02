@@ -454,15 +454,15 @@ class PIXIE(object):
         # projection
         cam = param_dict[param_type + '_cam']
         trans_verts = util.batch_orth_proj(verts, cam)
-        predicted_landmarks = util.batch_orth_proj(landmarks, cam)[:,:,:2]
-        predicted_joints = util.batch_orth_proj(joints, cam)[:,:,:2]
+        projected_landmarks = util.batch_orth_proj(landmarks, cam)[:,:,:2]
+        projected_joints = util.batch_orth_proj(joints, cam)[:,:,:2]
 
         # save predcition
         prediction = {
                     'vertices': verts,
                     'transformed_vertices': trans_verts,
-                    'face_kpt': predicted_landmarks,
-                    'smplx_kpt': predicted_joints,
+                    'face_kpt': projected_landmarks,
+                    'smplx_kpt': projected_joints,
                     'smplx_kpt3d': smplx_kpt3d,
                     'joints': joints,
                     'cam': cam,

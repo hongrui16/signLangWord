@@ -9,10 +9,13 @@ import scipy
 from skimage.io import imread, imsave
 from skimage.transform import estimate_transform, warp, resize, rescale
 from glob import glob
+from PIL import Image
 
-from ..utils import util
+sys.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './')))
+sys.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from . import detectors
-from ..utils import array_cropper
+from utils.image_process import crop_resize_image, crop_resize_image_batch
 
 def build_dataloader(testpath, batch_size=1):
     data_list = []
@@ -103,24 +106,25 @@ class TestData(Dataset):
             bbox = [left, top, right, bottom]
             size = max(right - left, bottom - top)
 
-        # crop image
+        ### crop image
         DST_PTS = np.array([[0,0], [0,self.crop_size - 1], [self.crop_size - 1, 0]])
         tform = estimate_transform('similarity', src_pts, DST_PTS)
         dst_image = warp(image, tform.inverse, output_shape=(self.crop_size, self.crop_size))
-        dst_image = dst_image.transpose(2, 0, 1)
-        
-        # hd image
+        dst_image = dst_image.transpose(2,0,1)
+        ### hd image
         DST_PTS = np.array([[0,0], [0,self.hd_size - 1], [self.hd_size - 1, 0]])
         tform_hd = estimate_transform('similarity', src_pts, DST_PTS)
         hd_image = warp(image, tform_hd.inverse, output_shape=(self.hd_size, self.hd_size))
         hd_image = hd_image.transpose(2,0,1)
+        # dst_image = crop_resize_image(image, bbox, self.scale, self.crop_size)
+
         # crop image
         return {'image': torch.tensor(dst_image).float(),
                 'name': imagename,
                 'imagepath': imagepath,
                 'image_hd': torch.tensor(hd_image).float(),
-                'tform': torch.tensor(tform.params).float(),
-                'original_image': torch.tensor(image.transpose(2,0,1)).float(),
-                'bbox': bbox,
-                'size': size,
+                # 'tform': torch.tensor(tform.params).float(),
+                # 'original_image': torch.tensor(image.transpose(2,0,1)).float(),
+                # 'bbox': bbox,
+                # 'size': size,
                 }
